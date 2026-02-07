@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Valentine</title>
+
+<style>
+  :root{
+    --shadow: rgba(0,0,0,0.35);
+  }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    color:#fff;
+    text-align:center;
+    transition: background 0.5s ease;
+    font-family:"Palatino Linotype","Book Antiqua",Palatino,serif;
+  }
+
+  /* ---------- Background themes ---------- */
+  body.bg-terminal{
+    background:#050607;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  }
+  body.bg-invite{
+    background:
+      radial-gradient(1000px 700px at 50% 25%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 60%),
+      linear-gradient(135deg,#f4b7c6,#d98aa3);
+  }
+  body.bg-yes{
+    background:
+      radial-gradient(1050px 750px at 50% 25%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 60%),
+      linear-gradient(135deg,#f0b2c6,#d785a6);
+  }
+  body.bg-timeline{
+    background:
+      radial-gradient(1050px 750px at 50% 25%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 60%),
+      linear-gradient(135deg,#f3b3c6,#ce7ea3);
+  }
+  body.bg-letter{
+    background:linear-gradient(135deg,#1b0d14,#12080d);
+  }
+  body.bg-no{
+    background:linear-gradient(135deg,#0b0b12,#07070e);
+  }
+
+  /* ---------- Cats ---------- */
+  .corner-cat{
+    position:fixed;
+    width:150px;
+    height:auto;
+    border-radius:18px;
+    box-shadow:0 18px 40px var(--shadow);
+    opacity:0.95;
+    z-index:2;
+  }
+  .cat-tl{top:12px;left:12px;}
+  .cat-br{bottom:12px;right:12px;}
+
+  /* hide cats on terminal */
+  body.hide-cats .corner-cat{ display:none; }
+
+  /* ---------- Pages ---------- */
+  .page{
+    width:min(980px, 96vw);
+    padding:28px 16px;
+    display:none;
+    opacity:0;
+    transform:translateY(14px) scale(0.99);
+    transition:opacity .45s ease, transform .45s ease;
+    z-index:3;
+  }
+  .page.active{
+    display:block;
+    opacity:1;
+    transform:none;
+  }
+
+  /* ---------- Headers ---------- */
+  h1{
+    font-size:3rem;
+    font-weight:900;
+    margin:0 0 14px 0;
+    line-height:1.15;
+    text-shadow:0 12px 26px rgba(0,0,0,0.14);
+  }
+  h2{
+    font-size:2rem;
+    font-weight:900;
+    margin:0 0 12px 0;
+    text-shadow:0 10px 18px rgba(0,0,0,0.12);
+  }
+
+  /* ---------- Buttons ---------- */
+  .btnrow{
+    display:flex;
+    gap:14px;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-top:18px;
+  }
+  .btn{
+    border:none;
+    cursor:pointer;
+    padding:12px 20px;
+    border-radius:14px;
+    background:rgba(255,255,255,0.18);
+    border:2px solid rgba(255,255,255,0.28);
+    color:#fff;
+    font-size:1.2rem;
+    font-weight:900;
+    box-shadow:0 16px 40px rgba(0,0,0,0.22);
+    transition:transform .15s ease, background .15s ease, border-color .15s ease;
+    user-select:none;
+  }
+  .btn:hover{
+    transform:translateY(-2px);
+    background:rgba(255,255,255,0.22);
+    border-color:rgba(255,255,255,0.42);
+  }
+  .btn:active{ transform:translateY(0); }
+
+  /* ---------- Terminal ---------- */
+  .terminal{
+    width:min(860px, 92vw);
+    text-align:left;
+    background:rgba(0,0,0,0.62);
+    border:1px solid rgba(0,255,140,0.14);
+    border-radius:16px;
+    padding:26px 24px;
+    box-shadow:0 26px 90px rgba(0,0,0,0.55);
+  }
+  .term-text{
+    color:#22ff88;
+    font-size:1.28rem;
+    line-height:1.6;
+    white-space:pre-wrap;
+  }
+  .term-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:12px;
+  }
+  .term-prompt{
+    color:#22ff88;
+    font-size:1.28rem;
+  }
+  .term-input{
+    background:transparent;
+    border:none;
+    outline:none;
+    color:#22ff88;
+    font-size:1.28rem;
+    font-family:inherit;
+    width:min(360px, 70vw);
+    caret-color:#22ff88;
+  }
+  .blink{
+    display:inline-block;
+    width:10px;
+    border-right:2px solid rgba(34,255,136,0.95);
+    height:1.05em;
+    transform: translateY(2px);
+    animation:blink 0.9s steps(1,end) infinite;
+    margin-left:4px;
+  }
+  @keyframes blink{ 50%{opacity:0;} }
+
+  /* ---------- Main couple image ---------- */
+  .couple-img{
+    width:240px;
+    height:auto;
+    border-radius:18px;
+    box-shadow:0 22px 60px rgba(0,0,0,0.40);
+    transform:rotate(-90deg);
+    margin:0 auto 14px auto;
+    display:block;
+  }
+
+  /* ---------- Hearts (subtle) ---------- */
+  .heart{
+    position:fixed;
+    z-index:1;
+    pointer-events:none;
+    font-size:90px;
+    opacity:0.92;
+    animation:float 6.2s linear infinite;
+    filter:drop-shadow(0 10px 18px rgba(0,0,0,0.12));
+  }
+  @keyframes float{
+    0%{transform:translateY(0) rotate(0deg);}
+    50%{transform:translateY(-150px) rotate(180deg);}
+    100%{transform:translateY(0) rotate(360deg);}
+  }
+  /* don’t show hearts on terminal or no screen */
+  body.no-hearts .heart{ display:none !important; }
+
+  /* ---------- Timeline ---------- */
+  .timeline-img{
+    width:auto;
+    max-width:420px;
+    max-height:55vh;
+    height:auto;
+    border-radius:18px;
+    box-shadow:0 22px 70px rgba(0,0,0,0.35);
+    background:rgba(255,255,255,0.08);
+    opacity:1;
+    transition:opacity .35s ease;
+    display:block;
+    margin:0 auto;
+  }
+  .timeline-img.fading{ opacity:0; }
+  .timeline-caption{
+    margin-top:14px;
+    font-size:22px;
+    font-weight:900;
+    text-shadow:0 10px 18px rgba(0,0,0,0.12);
+  }
+  .timeline-note{
+    margin-top:10px;
+    font-size:0.95rem;
+    opacity:0.9;
+    display:none;
+  }
+
+  /* ---------- No page image ---------- */
+  #noPhoto{
+    width:min(520px, 88vw);
+    height:auto;
+    border-radius:18px;
+    box-shadow:0 22px 60px rgba(0,0,0,0.45);
+    display:block;
+    margin:0 auto;
+  }
+
+  /* ---------- Letter scroll (unroll) ---------- */
+  .scroll-wrap{
+    display:flex;
+    justify-content:center;
+    margin-top:10px;
+  }
+  .scroll{
+    width:min(640px, 92vw);
+    background:linear-gradient(#fff1cf,#f6deb1);
+    border:6px solid #d4af37;
+    border-radius:16px;
+    box-shadow:0 40px 90px rgba(0,0,0,0.45);
+    color:#1b0d14;
+    font-family:"Garamond","Times New Roman",serif;
+    font-size:1.2rem;
+    line-height:1.75;
+    padding:28px 26px;
+
+    height:0;
+    overflow:hidden;
+  }
+  .scroll.unroll{
+    animation:unroll 2.2s ease forwards;
+  }
+  @keyframes unroll{
+    to{ height:520px; }
+  }
+  .scroll .inner{
+    height:100%;
+    overflow:auto;
+    padding-right:10px;
+  }
+  .scroll p{ margin:0 0 18px 0; }
+  .sig{ font-weight:900; margin-top:18px; }
+</style>
+</head>
+
+<body class="bg-terminal hide-cats no-hearts">
+
+  <!-- Cats (only show after terminal unlock) -->
+  <img src="IMG_5194.JPG" class="corner-cat cat-tl" alt="cat" />
+  <img src="IMG_5192.JPG" class="corner-cat cat-br" alt="cat" />
+
+  <!-- TERMINAL PAGE -->
+  <section class="page active" id="terminalPage">
+    <div class="terminal">
+      <div class="term-text" id="termText"></div><span class="blink" id="termBlink"></span>
+      <div class="term-row" id="passRow" style="display:none;">
+        <div class="term-prompt">&gt;</div>
+        <input class="term-input" id="passInput" type="password" autocomplete="off" />
+      </div>
+    </div>
+  </section>
+
+  <!-- INVITE PAGE -->
+  <section class="page" id="invitePage">
+    <img src="couples.jpg" class="couple-img" alt="couple" />
+    <h1>
+      Murar Toor cordially invites<br>
+      Ava Audrey Elsie Mack<br>
+      to be his Valentine
+    </h1>
+    <h2>Do you accept?</h2>
+    <div class="btnrow">
+      <button class="btn" id="yesBtn">Yes</button>
+      <button class="btn" id="noBtn">No</button>
+    </div>
+  </section>
+
+  <!-- YES PAGE -->
+  <section class="page" id="yesPage">
+    <h1>Thank you for choosing me to be your Valentine</h1>
+    <div class="btnrow">
+      <button class="btn" id="timelineBtn">Timeline</button>
+      <button class="btn" id="letterBtn">Letter</button>
+      <button class="btn" id="backInviteBtn">Back</button>
+    </div>
+  </section>
+
+  <!-- TIMELINE PAGE -->
+  <section class="page" id="timelinePage">
+    <h1 id="tlTitle">Timeline</h1>
+    <img id="tlImg" class="timeline-img" alt="timeline photo" />
+    <div class="timeline-caption" id="tlCap"></div>
+    <div class="timeline-note" id="tlMissing">This photo file wasn’t found in the folder.</div>
+    <div class="btnrow">
+      <button class="btn" id="tlBack">Back</button>
+      <button class="btn" id="tlNext">Next</button>
+    </div>
+  </section>
+
+  <!-- LETTER PAGE -->
+  <section class="page" id="letterPage">
+    <h1>Your Letter</h1>
+
+    <div class="scroll-wrap">
+      <div class="scroll" id="scrollBox">
+        <div class="inner">
+          <p><strong>Dear Elsie,</strong></p>
+
+          <p>
+            You my angel are the love of my life, the things I feel for you are so terribly hard to put into words.
+            You are everything I’ve ever wanted, but more importantly you are all I ever needed.
+            I feel whole when I’m with you, like nothing else could possibly matter.
+            I love you so much, there is possibly no way to estimate how much love my heart holds for you.
+            Happy Valentine's day my love, I’m so glad I get to spend this day with you, we can be one on this day.
+            To our first valentines together, and a hundred more we will celebrate this life.
+            I can just sit with you and even that alone is the highlight of my day, and happy 3 months sweetheart,
+            I cannot wait to call you my wife.
+            The love I have for you cannot be contained by anything, it is quite literally infinite.
+            Everything you hate about yourself, I find so so so so beautiful, everything about you is beautiful,
+            every single moment with you is beautiful.
+            I love you very much and I always will. Forever your hummingbird, humming your praises always.
+          </p>
+
+          <p class="sig">
+            Always and truly yours:<br>
+            Murar
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="btnrow">
+      <button class="btn" id="backYesFromLetter">Back</button>
+    </div>
+  </section>
+
+  <!-- NO PAGE -->
+  <section class="page" id="noPage">
+    <img id="noPhoto" src="no.jpeg" alt="no" />
+  </section>
+
+<script>
+  // ---------------- Core navigation ----------------
+  const PAGES = ["terminalPage","invitePage","yesPage","timelinePage","letterPage","noPage"];
+  const pageEl = Object.fromEntries(PAGES.map(id => [id, document.getElementById(id)]));
+
+  function showPage(id){
+    for (const pid of PAGES){
+      pageEl[pid].classList.toggle("active", pid === id);
+    }
+  }
+
+  function setTheme(theme){
+    document.body.classList.remove("bg-terminal","bg-invite","bg-yes","bg-timeline","bg-letter","bg-no");
+    document.body.classList.add(theme);
+  }
+
+  // Cats / hearts visibility helpers
+  function catsOn(){ document.body.classList.remove("hide-cats"); }
+  function catsOff(){ document.body.classList.add("hide-cats"); }
+  function heartsOn(){ document.body.classList.remove("no-hearts"); }
+  function heartsOff(){ document.body.classList.add("no-hearts"); }
+
+  // ---------------- Terminal typing ----------------
+  const PASSWORD = "10/31/25";
+  const termText = document.getElementById("termText");
+  const termBlink = document.getElementById("termBlink");
+  const passRow = document.getElementById("passRow");
+  const passInput = document.getElementById("passInput");
+
+  const lines = [
+    "> hello\n",
+    "> this website is made for your eyes only it is protected behind a code only you and i know\n",
+    "> enter password:\n"
+  ];
+
+  function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+  async function typeTerminal(){
+    termText.textContent = "";
+    passRow.style.display = "none";
+    termBlink.style.display = "inline-block";
+
+    await sleep(600);
+    for (const line of lines){
+      for (const ch of line){
+        termText.textContent += ch;
+        await sleep(26);
+      }
+      await sleep(120);
+    }
+
+    passRow.style.display = "flex";
+    passInput.value = "";
+    passInput.focus();
+  }
+
+  passInput.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    if ((passInput.value || "").trim() !== PASSWORD){
+      passInput.value = "";
+      passInput.focus();
+      return;
+    }
+
+    // unlock
+    catsOn();
+    heartsOn();
+    setTheme("bg-invite");
+    showPage("invitePage");
+    startHeartsOnce();
+  });
+
+  // ---------------- Hearts (start once) ----------------
+  let heartsStarted = false;
+  let heartTimer = null;
+
+  function spawnHeart(){
+    // Only show hearts on invite + yes pages
+    const inviteActive = pageEl.invitePage.classList.contains("active");
+    const yesActive = pageEl.yesPage.classList.contains("active");
+    if (!inviteActive && !yesActive) return;
+
+    const h = document.createElement("div");
+    h.className = "heart";
+    h.textContent = "❤️";
+    h.style.left = (Math.random() * 100) + "vw";
+    h.style.top  = (Math.random() * 100) + "vh";
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 9000);
+  }
+
+  function startHeartsOnce(){
+    if (heartsStarted) return;
+    heartsStarted = true;
+    heartTimer = setInterval(spawnHeart, 900);
+  }
+
+  // ---------------- Invite page controls ----------------
+  const yesBtn = document.getElementById("yesBtn");
+  const noBtn  = document.getElementById("noBtn");
+
+  yesBtn.addEventListener("click", () => {
+    setTheme("bg-yes");
+    showPage("yesPage");
+  });
+
+  // Evasive no (simple + reliable)
+  noBtn.addEventListener("mouseenter", () => {
+    // keep it from flying off-screen too far
+    const dx = (Math.random() * 220 - 110);
+    const dy = (Math.random() * 90 - 45);
+    noBtn.style.transform = `translate(${dx}px, ${dy}px)`;
+  });
+
+  noBtn.addEventListener("click", () => {
+    setTheme("bg-no");
+    heartsOff();
+    showPage("noPage");
+
+    // return to invite after 10s
+    setTimeout(() => {
+      heartsOn();
+      setTheme("bg-invite");
+      showPage("invitePage");
+    }, 10000);
+  });
+
+  // ---------------- Yes page controls ----------------
+  document.getElementById("timelineBtn").addEventListener("click", () => {
+    setTheme("bg-timeline");
+    showPage("timelinePage");
+    loadTimeline(1);
+  });
+
+  document.getElementById("letterBtn").addEventListener("click", () => {
+    setTheme("bg-letter");
+    heartsOff(); // cleaner on letter page
+    showPage("letterPage");
+    restartUnroll();
+  });
+
+  document.getElementById("backInviteBtn").addEventListener("click", () => {
+    setTheme("bg-invite");
+    showPage("invitePage");
+  });
+
+  // ---------------- Timeline logic (jpg/jpeg) ----------------
+  const TL_TOTAL = 12;
+  let tlIndex = 1;
+
+  const caps = [
+    "The first time I brought you flowers",
+    "A night in september where the moon was red and I wondered if you were looking at it too.",
+    "The photo I posted hoping you would see it",
+    "The day after I asked you to be my girlfriend",
+    "Our beautiful date to the conservatory",
+    "The day of our first argument",
+    "The day you opened up to me",
+    "The day we got Orphie",
+    "The beautiful country lights date where I realized I cannot live without you",
+    "My pretty girlfriend in my quarter zip",
+    "First day of Canmore Trip",
+    "Our proper first night out"
+  ];
+
+  const tlTitle = document.getElementById("tlTitle");
+  const tlImg = document.getElementById("tlImg");
+  const tlCap = document.getElementById("tlCap");
+  const tlMissing = document.getElementById("tlMissing");
+  const tlBack = document.getElementById("tlBack");
+  const tlNext = document.getElementById("tlNext");
+
+  function loadTimeline(i){
+    tlIndex = i;
+    tlTitle.textContent = `Timeline (${tlIndex}/${TL_TOTAL})`;
+    tlCap.textContent = caps[tlIndex - 1] || "";
+    tlMissing.style.display = "none";
+
+    tlNext.textContent = (tlIndex < TL_TOTAL) ? "Next" : "Back to Yes";
+
+    tlImg.classList.add("fading");
+
+    const base = `timeline${tlIndex}`;
+    const tries = [`${base}.jpg`, `${base}.jpeg`];
+    let k = 0;
+
+    const tryLoad = () => {
+      if (k >= tries.length){
+        tlImg.classList.remove("fading");
+        tlMissing.style.display = "block";
+        return;
+      }
+      tlImg.onerror = () => { k++; tryLoad(); };
+      tlImg.onload  = () => { tlImg.classList.remove("fading"); };
+      tlImg.src = tries[k];
+    };
+
+    setTimeout(tryLoad, 120);
+  }
+
+  tlBack.addEventListener("click", () => {
+    setTheme("bg-yes");
+    heartsOn();
+    showPage("yesPage");
+  });
+
+  tlNext.addEventListener("click", () => {
+    if (tlIndex < TL_TOTAL){
+      loadTimeline(tlIndex + 1);
+    } else {
+      setTheme("bg-yes");
+      heartsOn();
+      showPage("yesPage");
+    }
+  });
+
+  // ---------------- Letter unroll reset ----------------
+  const scrollBox = document.getElementById("scrollBox");
+  function restartUnroll(){
+    // remove + re-add to restart CSS animation every time letter opens
+    scrollBox.classList.remove("unroll");
+    void scrollBox.offsetWidth; // force reflow
+    scrollBox.classList.add("unroll");
+  }
+
+  document.getElementById("backYesFromLetter").addEventListener("click", () => {
+    setTheme("bg-yes");
+    heartsOn();
+    showPage("yesPage");
+  });
+
+  // ---------------- Init ----------------
+  setTheme("bg-terminal");
+  catsOff();
+  heartsOff();
+  showPage("terminalPage");
+  typeTerminal();
+</script>
+</body>
+</html>
