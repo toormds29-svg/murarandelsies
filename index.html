@@ -296,6 +296,7 @@
 
   <!-- INVITE PAGE -->
   <section class="page" id="invitePage">
+    <!-- IMPORTANT: make sure this matches your repo EXACTLY (couples.JPG vs couples.jpg) -->
     <img src="couples.jpg" class="couple-img" alt="couple" />
     <h1>
       Murar Toor cordially invites<br>
@@ -519,7 +520,7 @@
     showPage("invitePage");
   });
 
-  // ---------------- Timeline logic (jpg/jpeg) ----------------
+  // ---------------- Timeline logic (case + extension safe) ----------------
   const TL_TOTAL = 12;
   let tlIndex = 1;
 
@@ -556,7 +557,12 @@
     tlImg.classList.add("fading");
 
     const base = `timeline${tlIndex}`;
-    const tries = [`${base}.jpg`, `${base}.jpeg`];
+    const tries = [
+      `${base}.jpg`, `${base}.jpeg`,
+      `${base}.JPG`, `${base}.JPEG`,
+      `${base}.Jpg`, `${base}.Jpeg`
+    ];
+
     let k = 0;
 
     const tryLoad = () => {
